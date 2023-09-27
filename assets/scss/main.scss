@@ -1,0 +1,18 @@
+@use "./variables" as *;
+@use "./mixins" as *;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: $nord-pn-100;
+  color: $nord-ss-100;
+}
+
+image {
+  max-width: 100%;
+  max-height: 100%;
+}
