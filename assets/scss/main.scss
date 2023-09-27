@@ -9,7 +9,10 @@ body {
 
 body {
   background-color: $nord-pn-100;
-  color: $nord-ss-100;
+  color: $nord-ss-300;
+
+  padding: 2rem;
+  padding-top: calc(2 * $header-height + 2rem);
 }
 
 image {
