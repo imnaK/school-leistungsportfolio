@@ -13,6 +13,7 @@ body {
 
   padding: 2rem;
   padding-top: calc(2 * $header-height + 2rem);
+  padding-left: $navigation-width;
 }
 
 image {
