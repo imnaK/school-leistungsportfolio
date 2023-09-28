@@ -1,12 +1,25 @@
+<script setup lang="js">
+import { ref } from "vue";
+
+// a sample list of items with an index to keep track of the active item
+const activeItem = ref(-1);
+let itemIdx = 0;
+const items = ref([
+  { id: itemIdx++, name: "Home", path: "/" },
+  { id: itemIdx++, name: "About", path: "/about" },
+  { id: itemIdx++, name: "Projects", path: "/projects" },
+  { id: itemIdx++, name: "Contact", path: "/contact" },
+  { id: itemIdx++, name: "Blog", path: "/blog" },
+  { id: itemIdx++, name: "Resume", path: "/resume" },
+]);
+</script>
+
 <template>
   <nav>
     <ul>
-      <li>Lorem, ipsum.</li>
-      <li>Voluptates, quia?</li>
-      <li>Impedit, asperiores.</li>
-      <li>Hic, suscipit.</li>
-      <li>Harum, amet?</li>
-      <li>Optio, suscipit.</li>
+      <li v-for="item in items" :key="item.id" :class="{ active: activeItem === item.id }" @click="activeItem = item.id">
+        {{ item.name }}
+      </li>
     </ul>
   </nav>
 </template>
@@ -23,7 +36,6 @@ nav {
   ul {
     display: flex;
     flex-direction: column;
-    gap: .25rem;
 
     li {
       position: relative;
