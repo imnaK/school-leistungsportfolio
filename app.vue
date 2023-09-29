@@ -1,5 +1,5 @@
 <script setup lang="js">
-import { ref, provide } from "vue";
+import { ref, provide, onMounted } from "vue";
 import navData from "~/assets/json/nav-data.json";
 
 // a sample list of items with an index to keep track of the active item
@@ -12,14 +12,48 @@ const items = ref(navData.map(
   }
 ));
 
+// handle keypresses (arrow keys) to navigate the list of items
+function handleKeyPress(event) {
+  console.log(event.key);
+
+  switch (event.key) {
+    case "ArrowUp":
+      if (activeItem.value > 0) {
+        activeItem.value--;
+      }
+      break;
+    case "ArrowDown":
+      if (activeItem.value < items.value.length - 1) {
+        activeItem.value++;
+      }
+      break;
+    case "ArrowLeft":
+      if (activeItem.value > 0) {
+        activeItem.value--;
+      }
+      break;
+    case "ArrowRight":
+      if (activeItem.value < items.value.length - 1) {
+        activeItem.value++;
+      }
+      break;
+  }
+}
+
 // provide the active item and the list of items to the components that need it
 provide("activeItem", { activeItem, setActiveItem });
 provide("items", items);
+
+// focus the content div when the page loads
+const contentRef = ref(null);
+onMounted(() => {
+  contentRef.value.focus();
+});
 </script>
 
-<template>
+<template >
   <NuxtLayout>
-    <div id="content">
+    <div id="content" ref="contentRef" @keydown="handleKeyPress" tabindex="0">
       <ContentDoc :path="items[activeItem].path" />
     </div>
   </NuxtLayout>
@@ -30,6 +64,7 @@ provide("items", items);
 @import "~/assets/scss/main.scss";
 
 #content {
-  background-color: #fff1;
+  outline: unset;
+  // background-color: #fff1;
 }
 </style>
