@@ -4,6 +4,8 @@
       <img src="~/assets/img/logo_chamaeleon.svg" />
     </div>
   </header>
+
+  <PortNavCat />
 </template>
 
 <style lang="scss">

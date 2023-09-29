@@ -20,10 +20,11 @@ const items = inject("items");
 @use "~/assets/scss/variables" as *;
 
 nav {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
+  max-width: $navigation-width;
 
   ul {
     list-style: unset;

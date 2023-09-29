@@ -65,6 +65,39 @@ onMounted(() => {
 
 #content {
   outline: unset;
-  // background-color: #fff1;
+
+  blockquote {
+    background-color: $nord-pn-200;
+    padding: .5rem 1rem;
+    width: max-content;
+    white-space: pre-wrap;
+  }
+
+  pre {
+    background-color: $black-opacity-25;
+    padding: .5rem 1rem;
+    width: max-content;
+  }
+
+  $border-color: $nord-f-400;
+  $border-width: 6px;
+  $padding-left: 1rem;
+
+  @for $i from 1 through 6 {
+    h#{$i} {
+      border-left: calc(#{$border-width} - #{$i}px + 1px) solid $border-color;
+      padding-left: $padding-left;
+      color: $nord-f-300;
+
+      a {
+        color: inherit;
+      }
+    }
+  }
+
+  img {
+    max-width: 40vw;
+    max-height: 40vh;
+  }
 }
 </style>
