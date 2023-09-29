@@ -14,8 +14,6 @@ const items = ref(navData.map(
 
 // handle keypresses (arrow keys) to navigate the list of items
 function handleKeyPress(event) {
-  console.log(event.key);
-
   switch (event.key) {
     case "ArrowUp":
       if (activeItem.value > 0) {
