@@ -1,23 +1,15 @@
 <script setup lang="js">
-import { ref } from "vue";
+import { inject } from "vue";
 
-// a sample list of items with an index to keep track of the active item
-const activeItem = ref(-1);
-let itemIdx = 0;
-const items = ref([
-  { id: itemIdx++, name: "Home", path: "/" },
-  { id: itemIdx++, name: "About", path: "/about" },
-  { id: itemIdx++, name: "Projects", path: "/projects" },
-  { id: itemIdx++, name: "Contact", path: "/contact" },
-  { id: itemIdx++, name: "Blog", path: "/blog" },
-  { id: itemIdx++, name: "Resume", path: "/resume" },
-]);
+const { activeItem, setActiveItem } = inject("activeItem");
+const items = inject("items");
 </script>
 
 <template>
   <nav>
     <ul>
-      <li v-for="item in items" :key="item.id" :class="{ active: activeItem === item.id }" @click="activeItem = item.id">
+      <li v-for="item in items" :key="item.id" :class="{ active: activeItem === item.id }"
+        @click="setActiveItem(item.id)">
         {{ item.name }}
       </li>
     </ul>
@@ -34,6 +26,8 @@ nav {
   transform: translateY(-50%);
 
   ul {
+    list-style: unset;
+    padding: 0;
     display: flex;
     flex-direction: column;
 
@@ -66,7 +60,7 @@ nav {
 
         &::before {
           width: 2rem;
-          background-color: $nord-a-300;
+          background-color: $nord-f-400;
         }
       }
     }
