@@ -125,7 +125,7 @@ onMounted(() => {
 @use "~/assets/scss/variables" as *;
 
 $cat-size: 64px;
-$cat-feet-offset: $cat-size / 32 * 5;
+$cat-feet-offset: calc($cat-size / 32 * 5);
 
 #port-nav-cat {
   position: fixed;
