@@ -15,12 +15,14 @@ const STATE_WALK_RIGHT = 2;
 const catSize = 64;
 const speed = 25; // pixels per second
 const catFootSpace = 0.35;
+const stateTimerMin = 5000; // milliseconds
+const stateTimerMax = 15000; // milliseconds
 let catXPos = 0; // left position of the cat
 let catYOffset = 0; // top position of the cat
 let catAngle = 0; // angle of the cat
 let currentState = STATE_WALK_RIGHT;
 let lastState = STATE_IDLE;
-let stateTimer = 12000; // tells how long the current state will remain active until the next state is selected
+let stateTimer = stateTimerMax; // tells how long the current state will remain active until the next state is selected
 let currentFrame = 1; // current index of the current state, which will be used in calculation of the background-position (current frame)
 let pong = false; // switches if hits last or first frame to go back or forward in the sprite for walking animation
 
@@ -35,7 +37,7 @@ function updateState(deltaTime) {
   if (stateTimer <= 0) {
     lastState = currentState; // save the last state for the idle state looking direction
     currentState = Math.floor(Math.random() * 3); // select a new state
-    stateTimer = Math.floor(Math.random() * 4000) + 2000; // set the stateTimer to a random number in milliseconds
+    stateTimer = Math.floor(Math.random() * (stateTimerMax - stateTimerMin)) + stateTimerMin; // set the stateTimer to a random number in milliseconds
   }
 
   stateTimer -= deltaTime; // update the stateTimer
