@@ -1,6 +1,15 @@
+<script setup lang="js">
+import { ref, provide } from "vue";
+
+const header = ref(null);
+const logo = ref(null);
+
+provide("refs", { header, logo });
+</script>
+
 <template>
-  <header>
-    <div class="logo">
+  <header ref="header">
+    <div ref="logo" id="logo">
       <img src="~/assets/img/logo_chamaeleon.svg" />
     </div>
   </header>
@@ -22,7 +31,7 @@ header {
   justify-content: center;
   box-shadow: $default-shadow;
 
-  .logo {
+  #logo {
     height: $header-logo-height;
     padding: 1rem 2rem 2rem;
     background-color: $nord-ss-300;

@@ -1,22 +1,33 @@
 <script setup lang="js">
-import { ref } from "vue";
+import { ref, inject } from "vue";
 
-// cat sprite is 96px wide, 64px tall and has 32px * 32px per frame. top row is walking left, bottom row is walking right. middle frame of both rows is also standing still (idle)
+const { header, logo } = inject("refs");
+
+// header, logo variables
+let logoOffsetLeft, logoHeight, logoWidth, headerHeight, logoBound;
+
+// cat variables
 const cat = ref(null);
 const debug = false;
 const STATE_IDLE = 0;
 const STATE_WALK_LEFT = 1;
 const STATE_WALK_RIGHT = 2;
-let currentState = STATE_IDLE;
+let currentState = STATE_WALK_RIGHT;
 let lastState = STATE_IDLE;
-let currentFrame = 0; // current index of the current state, which will be used in calculation of the background-position (current frame)
-let stateTimer = 12000; // tells how long the current state will remain active until the next state is selected
-let catPos = 0;
-let speed = 50; // pixels per second
+let currentFrame = 1; // current index of the current state, which will be used in calculation of the background-position (current frame)
+let stateTimer = 8000; // tells how long the current state will remain active until the next state is selected
+let catXPos = 0;
+let catYOffset = 0;
+const speed = 50; // pixels per second
 let pong = false; // switches if hits last or first frame to go back or forward in the sprite for walking animation
-let catSize = 64;
+const catSize = 64;
+const catFeetOffset = catSize / 32 * 5;
 
-// make a game loop that does the following: check if a new state is needed (stateTimer <= 0), if so, select a new state and reset the stateTimer to a random milliseconds number between 1 and 5 seconds. move the cats position by the speed variable in the direction of the current state. update the background-position of the cat sprite to the current state and frame.
+// game loop variables
+let lastTime = 0;
+let deltaTime = 0;
+const fps = 5;
+const interval = 1000 / fps;
 
 function updateState(deltaTime) {
   // check if a new state is needed (stateTimer <= 0), if so, select a new state and reset the stateTimer to a random milliseconds number between 1 and 5 seconds.
@@ -32,20 +43,80 @@ function updateState(deltaTime) {
   stateTimer -= deltaTime;
 }
 
+class logoBounds {
+  // ellipse shape
+  constructor(left, top, width, height, headerHeight) {
+    this.left = left;
+    this.top = top;
+    this.width = width;
+    this.height = height;
+    this.headerHeight = headerHeight;
+
+    const perimeter = Math.PI * Math.sqrt((this.width * this.height) / 4);
+    this.stretch = this.width / perimeter;
+    this.w = this.width / 2;
+    this.h = this.height / 2;
+    this.hw = this.h / this.w;
+
+    const xOff = this.width / 2 - this.getXOffset(headerHeight);
+    this.leftBound = this.left + xOff;
+    this.rightBound = this.left + this.width - xOff;
+
+    this.inHeaderHeight = headerHeight < this.top || headerHeight > this.top + this.height;
+  }
+  isInBounds(x) {
+    if (this.inHeaderHeight) return false;
+    if (x < this.left || x > this.left + this.width) return false;
+    return x >= this.leftBound && x <= this.rightBound;
+  }
+  getYOffset(absoluteX) {
+    const x = absoluteX - this.left - this.w;
+    if (x < -this.w || x > this.w) throw new Error("x is out of bounds");
+    return Math.sqrt(this.w ** 2 - x ** 2) * this.hw;
+  }
+  getXOffset(absoluteY) {
+    const y = absoluteY - this.top - this.h;
+    if (y < -this.h || y > this.h) throw new Error("y is out of bounds");
+    return Math.sqrt(this.w ** 2 - (y / this.hw) ** 2);
+  }
+}
+
 function updateCatPosition(deltaTime) {
   let velocity = speed * (deltaTime / 1000);
 
-  // move the cats position by the speed variable in the direction of the current state
-  if (currentState === STATE_WALK_LEFT) {
-    catPos -= velocity;
-  } else if (currentState === STATE_WALK_RIGHT) {
-    catPos += velocity;
+  const catCenter = catXPos + catSize / 2;
+  if (logoBound.isInBounds(catCenter)) {
+    catYOffset = logoBound.getYOffset(catCenter);
+    // cat is in bounds of the logo
+    switch (currentState) {
+      case STATE_WALK_LEFT:
+        catXPos -= velocity * logoBound.stretch;
+        break;
+      case STATE_WALK_RIGHT:
+        catXPos += velocity * logoBound.stretch;
+        break;
+    }
+    return;
   }
 
-  if (catPos < -catSize) {
-    catPos = window.innerWidth;
-  } else if (catPos > window.innerWidth + catSize) {
-    catPos = -catSize;
+  // move the cats position by the speed variable in the direction of the current state (X axis)
+  catYOffset = 0;
+  switch (currentState) {
+    case STATE_WALK_LEFT:
+      catXPos -= velocity;
+      break;
+    case STATE_WALK_RIGHT:
+      catXPos += velocity;
+      break;
+  }
+}
+
+function checkCatOutOfBounds() {
+  // check if cat is out of bounds and move it to the other side
+  if (catXPos < -catSize) {
+    catXPos = window.innerWidth;
+  } else if (catXPos > window.innerWidth + catSize) {
+    catXPos = -catSize;
   }
 }
 
@@ -53,38 +124,31 @@ function renderCatPosition() {
   // update the background-position of the cat sprite to the current state and frame
   if (currentState === STATE_IDLE) {
     currentFrame = 1;
-  } else if (currentState === STATE_WALK_LEFT || currentState === STATE_WALK_RIGHT) {
+  } else {
     currentFrame += pong ? 1 : -1;
 
     if (currentFrame === 0 || currentFrame === 2)
       pong = !pong;
   }
 
-  let right = currentState === STATE_WALK_RIGHT;
-
-  if (currentState === STATE_IDLE)
-    right = lastState === STATE_WALK_RIGHT;
+  let right = currentState === STATE_IDLE ? lastState === STATE_WALK_RIGHT : currentState === STATE_WALK_RIGHT;
 
   // update the background-position of the styles of the cat sprite by vue ref
   cat.value.style.backgroundPosition = `${-currentFrame * catSize}px ${right ? -catSize : 0}px`;
   // update the left position of the styles of the cat sprite by vue ref
-  cat.value.style.left = `${catPos}px`;
+  cat.value.style.left = `${catXPos}px`;
+  cat.value.style.top = `${headerHeight - catSize + catFeetOffset + catYOffset}px`;
 }
 
 function debugCat() {
-  let catDebugStatue = {
-    currentState: currentState,
-    currentFrame: currentFrame,
-    stateTimer: stateTimer,
-    catPos: catPos,
-  };
-  console.table(catDebugStatue);
+  console.table({
+    currentState,
+    currentFrame,
+    stateTimer,
+    catXPos,
+    catYOffset,
+  });
 }
-
-let lastTime = 0;
-let deltaTime = 0;
-let fps = 5;
-let interval = 1000 / fps;
 
 function animateCat(timeStamp) {
   deltaTime = timeStamp - lastTime;
@@ -92,6 +156,7 @@ function animateCat(timeStamp) {
   if (deltaTime > interval) {
     updateState(deltaTime);
     updateCatPosition(deltaTime);
+    checkCatOutOfBounds();
     renderCatPosition();
 
     if (debug)
@@ -103,15 +168,27 @@ function animateCat(timeStamp) {
   requestAnimationFrame(animateCat);
 }
 
+function setInitialPositionVariables() {
+  logoOffsetLeft = logo.value.offsetLeft;
+  logoHeight = logo.value.offsetHeight;
+  logoWidth = logo.value.offsetWidth;
+  headerHeight = header.value.offsetHeight;
+  logoBound = new logoBounds(logoOffsetLeft, 0, logoWidth, logoHeight, headerHeight);
+}
+
 function setInitialCatStyles() {
-  catPos = -catSize;
+  catXPos = -catSize;
 
   cat.value.style.backgroundPosition = `${-currentFrame * catSize}px ${currentState === STATE_WALK_RIGHT ? -catSize : 0}px`;
-  cat.value.style.left = `${catPos}px`;
+  cat.value.style.left = `${catXPos}px`;
+  cat.value.style.top = `${headerHeight - catSize + catFeetOffset + catYOffset}px`;
+  cat.value.style.width = `${catSize}px`;
+  cat.value.style.height = `${catSize}px`;
   cat.value.style.opacity = 1;
 }
 
 onMounted(() => {
+  setInitialPositionVariables();
   setInitialCatStyles();
   animateCat();
 });
@@ -124,17 +201,11 @@ onMounted(() => {
 <style scoped lang="scss">
 @use "~/assets/scss/variables" as *;
 
-$cat-size: 64px;
-$cat-feet-offset: calc($cat-size / 32 * 5);
-
 #port-nav-cat {
   position: fixed;
-  top: calc($header-height - $cat-size + $cat-feet-offset);
   left: 0;
   opacity: 0;
 
-  width: $cat-size;
-  height: $cat-size;
   background-image: url("/img/cat_sprite_64.png");
   background-repeat: no-repeat;
 }
