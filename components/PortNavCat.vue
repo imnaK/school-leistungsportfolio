@@ -4,47 +4,44 @@ import { ref, inject } from "vue";
 const { header, logo } = inject("refs");
 
 // header, logo variables
-let logoOffsetLeft, logoHeight, logoWidth, headerHeight, logoBound;
+let logoOffsetLeft, logoHeight, logoWidth, headerHeight, logoBnd;
 
 // cat variables
 const cat = ref(null);
-const debug = false;
+const DEBUG = false;
 const STATE_IDLE = 0;
 const STATE_WALK_LEFT = 1;
 const STATE_WALK_RIGHT = 2;
+const catSize = 64;
+const speed = 25; // pixels per second
+const catFootSpace = 0.35;
+let catXPos = 0; // left position of the cat
+let catYOffset = 0; // top position of the cat
+let catAngle = 0; // angle of the cat
 let currentState = STATE_WALK_RIGHT;
 let lastState = STATE_IDLE;
+let stateTimer = 12000; // tells how long the current state will remain active until the next state is selected
 let currentFrame = 1; // current index of the current state, which will be used in calculation of the background-position (current frame)
-let stateTimer = 8000; // tells how long the current state will remain active until the next state is selected
-let catXPos = 0;
-let catYOffset = 0;
-const speed = 50; // pixels per second
 let pong = false; // switches if hits last or first frame to go back or forward in the sprite for walking animation
-const catSize = 64;
-const catFeetOffset = catSize / 32 * 5;
 
 // game loop variables
-let lastTime = 0;
-let deltaTime = 0;
 const fps = 5;
 const interval = 1000 / fps;
+let lastTime = 0;
+let deltaTime = 0;
 
 function updateState(deltaTime) {
   // check if a new state is needed (stateTimer <= 0), if so, select a new state and reset the stateTimer to a random milliseconds number between 1 and 5 seconds.
   if (stateTimer <= 0) {
-    lastState = currentState;
-    // select a new state
-    currentState = Math.floor(Math.random() * 3);
-    // reset the stateTimer to a random milliseconds number between 1 and 5 seconds
-    stateTimer = Math.floor(Math.random() * 4000) + 2000;
+    lastState = currentState; // save the last state for the idle state looking direction
+    currentState = Math.floor(Math.random() * 3); // select a new state
+    stateTimer = Math.floor(Math.random() * 4000) + 2000; // set the stateTimer to a random number in milliseconds
   }
 
-  // update the stateTimer
-  stateTimer -= deltaTime;
+  stateTimer -= deltaTime; // update the stateTimer
 }
 
 class logoBounds {
-  // ellipse shape
   constructor(left, top, width, height, headerHeight) {
     this.left = left;
     this.top = top;
@@ -61,13 +58,9 @@ class logoBounds {
     const xOff = this.width / 2 - this.getXOffset(headerHeight);
     this.leftBound = this.left + xOff;
     this.rightBound = this.left + this.width - xOff;
+    this.yOff = this.getYOffset(this.leftBound);
 
     this.inHeaderHeight = headerHeight < this.top || headerHeight > this.top + this.height;
-  }
-  isInBounds(x) {
-    if (this.inHeaderHeight) return false;
-    if (x < this.left || x > this.left + this.width) return false;
-    return x >= this.leftBound && x <= this.rightBound;
   }
   getYOffset(absoluteX) {
     const x = absoluteX - this.left - this.w;
@@ -79,28 +72,18 @@ class logoBounds {
     if (y < -this.h || y > this.h) throw new Error("y is out of bounds");
     return Math.sqrt(this.w ** 2 - (y / this.hw) ** 2);
   }
+  inBound(x) {
+    if (this.inHeaderHeight) return false;
+    if (x < this.left || x > this.left + this.width) return false;
+    return x >= this.leftBound && x <= this.rightBound;
+  }
+  getY(absoluteX) {
+    return this.getYOffset(absoluteX) - this.yOff;
+  }
 }
 
-function updateCatPosition(deltaTime) {
-  let velocity = speed * (deltaTime / 1000);
-
-  const catCenter = catXPos + catSize / 2;
-  if (logoBound.isInBounds(catCenter)) {
-    catYOffset = logoBound.getYOffset(catCenter);
-    // cat is in bounds of the logo
-    switch (currentState) {
-      case STATE_WALK_LEFT:
-        catXPos -= velocity * logoBound.stretch;
-        break;
-      case STATE_WALK_RIGHT:
-        catXPos += velocity * logoBound.stretch;
-        break;
-    }
-    return;
-  }
-
-  // move the cats position by the speed variable in the direction of the current state (X axis)
-  catYOffset = 0;
+function moveByVelocity(velocity) {
+  // move the cats position by the velocity variable in the direction of the current state (X axis)
   switch (currentState) {
     case STATE_WALK_LEFT:
       catXPos -= velocity;
@@ -109,6 +92,35 @@ function updateCatPosition(deltaTime) {
       catXPos += velocity;
       break;
   }
+}
+
+function updateCatPosition(deltaTime) {
+  if (currentState === STATE_IDLE) return;
+
+  let velocity = speed * (deltaTime / 1000);
+
+  let leftX = catXPos + catSize * catFootSpace;
+  let rightX = catXPos + catSize * (1 - catFootSpace);
+
+  moveByVelocity((logoBnd.inBound(leftX) && logoBnd.inBound(rightX)) ? velocity * logoBnd.stretch : velocity);
+
+  leftX = catXPos + catSize * catFootSpace;
+  rightX = catXPos + catSize * (1 - catFootSpace);
+
+  const leftFootInBound = logoBnd.inBound(leftX);
+  const rightFootInBound = logoBnd.inBound(rightX);
+  if (leftFootInBound || rightFootInBound) {
+    const catLeftFoot = leftFootInBound ? logoBnd.getY(leftX) : 0;
+    const catRightFoot = rightFootInBound ? logoBnd.getY(rightX) : 0;
+    const heightDiff = catLeftFoot - catRightFoot;
+    const widthDiff = catSize * (1 - catFootSpace * 2);
+    catAngle = Math.atan(heightDiff / widthDiff);
+    catYOffset = (catLeftFoot + catRightFoot) / 2;
+    return;
+  }
+
+  catYOffset = 0;
+  catAngle = 0;
 }
 
 function checkCatOutOfBounds() {
@@ -127,17 +139,17 @@ function renderCatPosition() {
   } else {
     currentFrame += pong ? 1 : -1;
 
-    if (currentFrame === 0 || currentFrame === 2)
+    if (currentFrame !== 1)
       pong = !pong;
   }
 
-  let right = currentState === STATE_IDLE ? lastState === STATE_WALK_RIGHT : currentState === STATE_WALK_RIGHT;
-
+  const right = currentState === STATE_IDLE ? lastState === STATE_WALK_RIGHT : currentState === STATE_WALK_RIGHT;
   // update the background-position of the styles of the cat sprite by vue ref
   cat.value.style.backgroundPosition = `${-currentFrame * catSize}px ${right ? -catSize : 0}px`;
   // update the left position of the styles of the cat sprite by vue ref
   cat.value.style.left = `${catXPos}px`;
-  cat.value.style.top = `${headerHeight - catSize + catFeetOffset + catYOffset}px`;
+  cat.value.style.top = `${headerHeight - catSize + catYOffset}px`;
+  cat.value.style.transform = `rotate(${-catAngle}rad)`;
 }
 
 function debugCat() {
@@ -158,9 +170,7 @@ function animateCat(timeStamp) {
     updateCatPosition(deltaTime);
     checkCatOutOfBounds();
     renderCatPosition();
-
-    if (debug)
-      debugCat();
+    if (DEBUG) debugCat();
 
     lastTime = timeStamp;
   }
@@ -168,29 +178,34 @@ function animateCat(timeStamp) {
   requestAnimationFrame(animateCat);
 }
 
-function setInitialPositionVariables() {
+function setWindowVars() {
   logoOffsetLeft = logo.value.offsetLeft;
   logoHeight = logo.value.offsetHeight;
   logoWidth = logo.value.offsetWidth;
   headerHeight = header.value.offsetHeight;
-  logoBound = new logoBounds(logoOffsetLeft, 0, logoWidth, logoHeight, headerHeight);
+  logoBnd = new logoBounds(logoOffsetLeft, 0, logoWidth, logoHeight, headerHeight);
 }
 
 function setInitialCatStyles() {
   catXPos = -catSize;
 
   cat.value.style.backgroundPosition = `${-currentFrame * catSize}px ${currentState === STATE_WALK_RIGHT ? -catSize : 0}px`;
+  cat.value.style.transformOrigin = "bottom center";
   cat.value.style.left = `${catXPos}px`;
-  cat.value.style.top = `${headerHeight - catSize + catFeetOffset + catYOffset}px`;
+  cat.value.style.top = `${headerHeight - catSize + catYOffset}px`;
   cat.value.style.width = `${catSize}px`;
   cat.value.style.height = `${catSize}px`;
-  cat.value.style.opacity = 1;
 }
 
 onMounted(() => {
-  setInitialPositionVariables();
+  setWindowVars();
   setInitialCatStyles();
   animateCat();
+  window.addEventListener("resize", setWindowVars);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", setWindowVars);
 });
 </script>
 
@@ -203,8 +218,6 @@ onMounted(() => {
 
 #port-nav-cat {
   position: fixed;
-  left: 0;
-  opacity: 0;
 
   background-image: url("/img/cat_sprite_64.png");
   background-repeat: no-repeat;
