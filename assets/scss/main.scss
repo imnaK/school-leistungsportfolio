@@ -12,15 +12,15 @@ body {
   font-size: $default-font-size;
   line-height: 1.5;
 
-  background-color: $nord-pn-100;
+  // background-color: $nord-pn-100;
   color: $nord-ss-300;
 
   padding: $padding-extra-space;
   padding-top: calc(2 * $header-height + $padding-extra-space);
   padding-left: $navigation-width + $padding-extra-space;
-  background-image: url("../img/background.svg");
-  background-size: 100vw;
-  background-repeat: no-repeat;
+  // background-image: url("../img/background.svg");
+  // background-size: 100vw;
+  // background-repeat: no-repeat;
 }
 
 img {

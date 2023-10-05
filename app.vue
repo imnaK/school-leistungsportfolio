@@ -49,7 +49,8 @@ onMounted(() => {
 });
 </script>
 
-<template >
+<template>
+  <Background />
   <NuxtLayout>
     <div id="content" ref="contentRef" @keydown="handleKeyPress" tabindex="0">
       <ContentDoc :path="items[activeItem].path" />
