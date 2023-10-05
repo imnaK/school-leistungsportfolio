@@ -18,6 +18,9 @@ body {
   padding: $padding-extra-space;
   padding-top: calc(2 * $header-height + $padding-extra-space);
   padding-left: $navigation-width + $padding-extra-space;
+  background-image: url("../img/background.svg");
+  background-size: 100vw;
+  background-repeat: no-repeat;
 }
 
 img {

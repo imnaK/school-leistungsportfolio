@@ -1,4 +1,12 @@
-# Heading 1
+::DualLayout
+#content
+Hier ist mein content lol!
+
+#image
+![alt text](https://picsum.photos/800/600)
+::
+
+# Heading 1 GRO?
 
 Hello World!
 

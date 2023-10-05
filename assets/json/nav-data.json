@@ -1,5 +1,9 @@
 [
   {
+    "name": "Ablauf",
+    "path": "/structure"
+  },
+  {
     "name": "Einleitung",
     "path": "/intro"
   },

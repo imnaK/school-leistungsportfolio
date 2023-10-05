@@ -57,7 +57,6 @@ nav {
         font-weight: bold;
         padding: 1.5rem 1rem 1.5rem 3rem;
         color: inherit;
-        font-size: 1.25rem;
 
         &::before {
           width: 2rem;

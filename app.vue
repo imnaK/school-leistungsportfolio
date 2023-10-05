@@ -94,8 +94,8 @@ onMounted(() => {
   }
 
   img {
-    max-width: 40vw;
-    max-height: 40vh;
+    max-width: 50vw;
+    max-height: calc(100vh - (2 * $header-height + 2 * $padding-extra-space));
   }
 }
 </style>
