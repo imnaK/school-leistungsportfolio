@@ -8,21 +8,21 @@ let logoOffsetLeft, logoHeight, logoWidth, headerHeight, logoBnd;
 
 // cat variables
 const cat = ref(null);
-const DEBUG = false;
+const debug = false;
 const STATE_IDLE = 0;
 const STATE_WALK_LEFT = 1;
 const STATE_WALK_RIGHT = 2;
 const catSize = 64;
-const speed = 25; // pixels per second
+const speed = 20; // pixels per second
 const catFootSpace = 0.35;
 const stateTimerMin = 5000; // milliseconds
 const stateTimerMax = 15000; // milliseconds
 let catXPos = 0; // left position of the cat
 let catYOffset = 0; // top position of the cat
 let catAngle = 0; // angle of the cat
-let currentState = STATE_WALK_RIGHT;
+let currentState = STATE_IDLE;
 let lastState = STATE_IDLE;
-let stateTimer = stateTimerMax; // tells how long the current state will remain active until the next state is selected
+let stateTimer = stateTimerMax * 4; // tells how long the current state will remain active until the next state is selected
 let currentFrame = 1; // current index of the current state, which will be used in calculation of the background-position (current frame)
 let pong = false; // switches if hits last or first frame to go back or forward in the sprite for walking animation
 
@@ -172,7 +172,7 @@ function animateCat(timeStamp) {
     updateCatPosition(deltaTime);
     checkCatOutOfBounds();
     renderCatPosition();
-    if (DEBUG) debugCat();
+    if (debug) debugCat();
 
     lastTime = timeStamp;
   }
