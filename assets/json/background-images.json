@@ -1,20 +1,26 @@
 [
   {
     "src": "img/background/circle.svg",
-    "alt": "circle1",
+    "alt": "circle",
     "width": 128,
     "height": 128
   },
   {
-    "src": "img/background/circle.svg",
-    "alt": "circle2",
-    "width": 128,
-    "height": 128
+    "src": "img/background/circle-solid.svg",
+    "alt": "circle-solid",
+    "width": 256,
+    "height": 256
   },
   {
-    "src": "img/background/circle.svg",
-    "alt": "circle3",
-    "width": 128,
-    "height": 128
+    "src": "img/background/circle-gradient.svg",
+    "alt": "circle-gradient",
+    "width": 320,
+    "height": 320
+  },
+  {
+    "src": "img/background/rectangle.svg",
+    "alt": "rectangle",
+    "width": 256,
+    "height": 256
   }
 ]
