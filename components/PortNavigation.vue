@@ -33,6 +33,8 @@ nav {
     flex-direction: column;
 
     li {
+      overflow-x: visible;
+      width: max-content;
       position: relative;
       color: $nord-ss-100;
       padding: .5rem 1rem .5rem 2rem;
