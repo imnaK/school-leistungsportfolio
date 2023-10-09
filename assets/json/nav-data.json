@@ -28,15 +28,11 @@
     "path": "/products"
   },
   {
-    "name": "Michaels Bereich",
-    "path": "/michael"
-  },
-  {
-    "name": "Adrians Bereich",
-    "path": "/adrian"
-  },
-  {
     "name": "Fragerunde",
     "path": "/questions"
+  },
+  {
+    "name": "Quellen",
+    "path": "/sources"
   }
 ]

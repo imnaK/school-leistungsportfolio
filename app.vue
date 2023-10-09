@@ -96,6 +96,7 @@ onMounted(() => {
 
   section img {
     max-width: 50vw;
+    max-height: calc(100vh - (6 * $header-height + 2 * $padding-extra-space));
   }
 
   img {
