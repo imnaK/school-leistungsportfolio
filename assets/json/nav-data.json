@@ -1,18 +1,42 @@
 [
   {
+    "name": "Start",
+    "path": "/start"
+  },
+  {
     "name": "Ablauf",
     "path": "/structure"
   },
   {
-    "name": "Einleitung",
-    "path": "/intro"
+    "name": "Wer wir sind",
+    "path": "/about"
   },
   {
-    "name": "Überleitung",
-    "path": "/transition"
+    "name": "Organigramm",
+    "path": "/organigram"
   },
   {
-    "name": "Testen",
-    "path": "/testing"
+    "name": "Was wir tun",
+    "path": "/whatwedo"
+  },
+  {
+    "name": "Unser CMS",
+    "path": "/ionas"
+  },
+  {
+    "name": "Weitere Produkte",
+    "path": "/products"
+  },
+  {
+    "name": "Michaels Bereich",
+    "path": "/michael"
+  },
+  {
+    "name": "Adrians Bereich",
+    "path": "/adrian"
+  },
+  {
+    "name": "Fragerunde",
+    "path": "/questions"
   }
 ]

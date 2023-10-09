@@ -94,9 +94,17 @@ onMounted(() => {
     }
   }
 
-  img {
+  section img {
     max-width: 50vw;
+  }
+
+  img {
     max-height: calc(100vh - (2 * $header-height + 2 * $padding-extra-space));
+  }
+
+  ul,
+  p {
+    font-size: 1.75rem;
   }
 }
 </style>

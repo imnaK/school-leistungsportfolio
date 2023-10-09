@@ -2,13 +2,17 @@
 
 ::dual-layout
 #content
-  - Hauptfeld: Automatisierung
-  - Nebenfelder:
-    - Sicherheitstechnik
-    - Ligistische Systeme
-  - Unsere Tätigkeitsfelder
-  - Fragerunde
+
+- **Ablauf des Portfolios**
+- Kurz, wer wir sind
+- Organigramm
+- Was wir tun
+- Unser CMS ionas
+- Weitere Produkte
+- Michaels Bereich
+- Adrians Bereich
+- Fragerunde
 
 #image
-  ![image](https://picsum.photos/800/500)
+![image](/img/roterfaden.jpg)
 ::

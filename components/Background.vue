@@ -43,7 +43,6 @@ const computedImages = computed(() => {
 
 <template>
   <div id="background">
-
     <img v-for="(img, idx) in computedImages" :src="img.src" :alt="img.alt" :style="img.style">
   </div>
 </template>
